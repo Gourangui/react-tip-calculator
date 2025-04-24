@@ -11,44 +11,62 @@ function App() {
 }
 
 function TipCalculator(){
+
+  const [bill, setBill] = useState("");
+  const [percentage1, setPercentage1] = useState(0);
+  const [percentage2, setPercentage2] = useState(0);
+  
+  const tip = ((bill * (percentage1 + percentage2)) / 100) / 2;
+  
+  function handleReset() {
+    setBill("");
+    setPercentage1(0);
+    setPercentage2(0);
+  }
+
+
   return (
     <>
-      <BillInput />
-      <SelectPercentage>How did you like the service?</ SelectPercentage>
-      <SelectPercentage>How did your friend like the service?</ SelectPercentage>
-      <Result />
-      <Reset />
+      <BillInput bill={bill} onSetBill={setBill} />
+      <SelectPercentage percentage={percentage1} onSelect={setPercentage1}>How did you like the service?</ SelectPercentage>
+      <SelectPercentage percentage={percentage2} onSelect={setPercentage2}>How did your friend like the service?</ SelectPercentage>
+      {bill > 0 && 
+        <>
+          <Result bill={bill} tip={tip} />
+          <Reset onReset={handleReset} />
+        </>
+      }
     </>
   )
 }
 
-function BillInput() {
-  const [amount, setAmount] = useState(0);
+function BillInput({bill, onSetBill}) {
 
   const handleChange = (e) => {
     const value = Number(e.target.value);
-    setAmount(value);
+    onSetBill(value);
   }
 
   return (
     <div className="bill">
       <label htmlFor="bill">How much was the bill?</label>
       <input 
-        type="number" 
+        type="text" 
         id="bill" 
-        placeholder="0.00"
-        value={amount}
+        placeholder="Bill amount"
+        value={bill}
         onChange={handleChange} />
     </div>
   )
 }
 
-function SelectPercentage({children}) {
+function SelectPercentage({children, percentage, onSelect}) {
+  
   return (
     <>
     <div className="service">
       <label htmlFor="service">{children}</label>
-      <select id="service">
+      <select id="service" value={percentage} onChange={(e) => onSelect(Number(e.target.value))}>
         <option value="20">Absolutely amazing! (20%)</option>
         <option value="10">It was good (10%)</option>
         <option value="5">It was ok (5%)</option>
@@ -60,19 +78,19 @@ function SelectPercentage({children}) {
 }
 
 
-function Result() {
+function Result({bill, tip}) {
   return (
     <div className="total">
       <div>You pay:</div>
-      <div>$92 ($80 + $12 tip)</div>
+      <div>${bill + tip} (${bill} + ${tip} tip)</div>
     </div>
   )
 }
 
-function Reset() {
+function Reset({onReset}) {
   return (
     <div className="button">
-      <button type="button">Reset</button>
+      <button type="button" onClick={onReset}>Reset</button>
     </div>
   )
 }
